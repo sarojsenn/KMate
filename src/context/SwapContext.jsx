@@ -16,6 +16,36 @@ function loadFromStorage() {
   }
 }
 
+const toClientRequest = (row) => ({
+  id: String(row.id),
+  name: row.name,
+  rollNumber: row.roll_number ?? row.rollNumber,
+  semester: row.semester,
+  currentSection: row.current_section ?? row.currentSection,
+  wantedSections: row.wanted_sections ?? row.wantedSections ?? [],
+  contact: row.contact,
+  note: row.note,
+  createdAt: row.created_at ?? row.createdAt,
+  likes: row.likes ?? 0,
+  saved: row.saved ?? false,
+  liked: row.liked ?? false,
+  reaction: row.reaction ?? null,
+  verified: row.verified ?? false,
+  recentlyActive: row.recently_active ?? row.recentlyActive ?? false,
+  highlyRated: row.highly_rated ?? row.highlyRated ?? false,
+});
+
+const toDbRequest = (request) => ({
+  name: request.name,
+  roll_number: request.rollNumber,
+  semester: request.semester,
+  current_section: request.currentSection,
+  wanted_sections: request.wantedSections,
+  contact: request.contact,
+  note: request.note,
+  created_at: request.createdAt,
+});
+
 export function SwapProvider({ children }) {
   const [requests, setRequests] = useState(loadFromStorage);
   const [activeRequestId, setActiveRequestId] = useState(() => {
@@ -65,14 +95,14 @@ export function SwapProvider({ children }) {
       const { data, error } = await supabase
         .from('requests')
         .select('*')
-        .order('createdAt', { ascending: false });
+        .order('created_at', { ascending: false });
 
       if (error) {
         console.error('Supabase fetch error:', error.message);
         return;
       }
 
-      setRequests(data ?? []);
+      setRequests((data ?? []).map(toClientRequest));
     };
 
     fetchRequests();
@@ -80,7 +110,7 @@ export function SwapProvider({ children }) {
     const channel = supabase
       .channel('public:requests')
       .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'requests' }, (payload) => {
-        setRequests((prev) => [payload.new, ...prev]);
+        setRequests((prev) => [toClientRequest(payload.new), ...prev]);
       })
       .subscribe();
 
@@ -104,7 +134,7 @@ export function SwapProvider({ children }) {
 
     const { data: inserted, error } = await supabase
       .from('requests')
-      .insert([newRequest])
+      .insert([toDbRequest(newRequest)])
       .select()
       .single();
 
@@ -113,54 +143,42 @@ export function SwapProvider({ children }) {
       return null;
     }
 
-    setRequests((prev) => [inserted, ...prev]);
-    setActiveRequestId(inserted.id);
-    return inserted.id;
+    const clientRequest = toClientRequest(inserted);
+    setRequests((prev) => [clientRequest, ...prev]);
+    setActiveRequestId(String(clientRequest.id));
+    return String(clientRequest.id);
   }, []);
 
   const deleteRequest = useCallback(async (id) => {
-    const { error } = await supabase.from('requests').delete().eq('id', id);
+    const normalizedId = typeof id === 'string' && /^\d+$/.test(id) ? Number(id) : id;
+    const { error } = await supabase.from('requests').delete().eq('id', normalizedId);
     if (error) {
       console.error('Supabase delete error:', error.message);
       return;
     }
     setRequests(prev => prev.filter(r => r.id !== id));
+    setActiveRequestId(prev => (prev === String(id) ? null : prev));
   }, []);
 
-  const toggleLike = useCallback(async (id) => {
+  const toggleLike = useCallback((id) => {
     setRequests(prev => prev.map(r =>
       r.id === id
         ? { ...r, liked: !r.liked, likes: r.liked ? r.likes - 1 : r.likes + 1 }
         : r
     ));
-    const request = requests.find(r => r.id === id);
-    if (!request) return;
-    const updatedLikes = request.liked ? request.likes - 1 : request.likes + 1;
-    const updatedLiked = !request.liked;
-    const { error } = await supabase.from('requests').update({ likes: updatedLikes, liked: updatedLiked }).eq('id', id);
-    if (error) console.error('Supabase like update error:', error.message);
-  }, [requests]);
+  }, []);
 
-  const toggleSave = useCallback(async (id) => {
+  const toggleSave = useCallback((id) => {
     setRequests(prev => prev.map(r =>
       r.id === id ? { ...r, saved: !r.saved } : r
     ));
-    const request = requests.find(r => r.id === id);
-    if (!request) return;
-    const { error } = await supabase.from('requests').update({ saved: !request.saved }).eq('id', id);
-    if (error) console.error('Supabase save update error:', error.message);
-  }, [requests]);
+  }, []);
 
-  const setReaction = useCallback(async (id, reaction) => {
+  const setReaction = useCallback((id, reaction) => {
     setRequests(prev => prev.map(r =>
       r.id === id ? { ...r, reaction: r.reaction === reaction ? null : reaction } : r
     ));
-    const request = requests.find(r => r.id === id);
-    if (!request) return;
-    const nextReaction = request.reaction === reaction ? null : reaction;
-    const { error } = await supabase.from('requests').update({ reaction: nextReaction }).eq('id', id);
-    if (error) console.error('Supabase reaction update error:', error.message);
-  }, [requests]);
+  }, []);
 
   const matches = useMemo(() => {
     if (!activeRequestId) return [];

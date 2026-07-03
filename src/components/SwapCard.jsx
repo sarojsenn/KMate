@@ -1,13 +1,13 @@
 import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import {
-  FiHeart, FiStar, FiCopy, FiTrash2, FiCheck, FiClock, FiBook, FiMessageSquare
+  FiHeart, FiStar, FiCopy, FiTrash2, FiCheck, FiClock, FiBook, FiMessageSquare, FiTarget
 } from 'react-icons/fi';
 import { useSwap } from '../context/SwapContext';
 import { formatTimeAgo, getInitials, getAvatarColor } from '../utils/helpers';
 
 function SwapCard({ request }) {
-  const { deleteRequest, toggleLike, toggleSave, setReaction } = useSwap();
+  const { deleteRequest, toggleLike, toggleSave, setReaction, activeRequestId, setActiveRequestId } = useSwap();
   const [copied, setCopied] = useState(false);
 
   const semBadge = request.semester === '3rd'
@@ -168,6 +168,17 @@ function SwapCard({ request }) {
                 </motion.span>
               )}
             </AnimatePresence>
+          </motion.button>
+
+          <motion.button
+            whileTap={{ scale: 0.85 }}
+            onClick={() => setActiveRequestId(request.id)}
+            id={`select-btn-${request.id}`}
+            className={`flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all duration-200 ${request.id === activeRequestId ? 'bg-indigo-600 text-white' : 'text-gray-500 dark:text-gray-500 hover:text-indigo-600 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 border border-transparent hover:border-indigo-200 dark:hover:border-indigo-500/20'}`}
+            title={request.id === activeRequestId ? 'Active request selected' : 'Select this request for matches'}
+          >
+            <FiTarget size={13} />
+            {request.id === activeRequestId ? 'Selected' : 'Select'}
           </motion.button>
 
           <motion.button

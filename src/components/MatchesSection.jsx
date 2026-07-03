@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { FiArrowRight } from 'react-icons/fi';
 import { useSwap } from '../context/SwapContext';
@@ -106,7 +107,11 @@ function MatchCard({ match, index }) {
 }
 
 export default function MatchesSection() {
-  const { matches } = useSwap();
+  const { matches, requests, activeRequestId } = useSwap();
+
+  const activeRequest = useMemo(() => {
+    return requests.find((request) => request.id === activeRequestId);
+  }, [requests, activeRequestId]);
 
   return (
     <section id="matches" className="py-20 px-4 sm:px-6">
@@ -126,21 +131,37 @@ export default function MatchesSection() {
             Your Matches
           </h2>
           <p className="text-gray-500 dark:text-gray-400">
-            Automatically detected compatible swap pairs.
+            Automatically detected compatible swap pairs using your selected request.
           </p>
         </motion.div>
 
-        {/* Matches count badge */}
-        {matches.length > 0 && (
+        {/* Active request summary */}
+        {activeRequest ? (
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
+            initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
-            className="flex justify-center mb-6"
+            className="mb-6 rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#161620] p-5 shadow-sm"
           >
-            <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 text-white font-semibold text-sm shadow-lg shadow-indigo-500/30">
-              <span className="w-2 h-2 rounded-full bg-white animate-pulse" />
-              {matches.length} match{matches.length !== 1 ? 'es' : ''} found
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+              <div>
+                <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-300 font-semibold">Selected Request</p>
+                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{activeRequest.name}</h3>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Current section {activeRequest.currentSection} · Wants {activeRequest.wantedSections.join(', ')}</p>
+              </div>
+              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-200 px-4 py-2 text-sm font-semibold">
+                {matches.length} compatible match{matches.length !== 1 ? 'es' : ''}
+              </div>
             </div>
+          </motion.div>
+        ) : (
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            className="mb-6 rounded-3xl border border-dashed border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 text-center"
+          >
+            <p className="text-sm text-gray-500 dark:text-gray-400">
+              Select a request from the community board to see personalized matches here.
+            </p>
           </motion.div>
         )}
 
