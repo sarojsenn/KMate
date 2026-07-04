@@ -6,39 +6,36 @@ import { getInitials, getAvatarColor } from '../utils/helpers';
 
 function StudentCard({ request }) {
   const avatarColor = getAvatarColor(request.name);
-  const semColor = request.semester === '3rd'
-    ? 'bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300'
-    : 'bg-purple-100 dark:bg-purple-500/20 text-purple-700 dark:text-purple-300';
+  const semBadge = request.semester === '3rd'
+    ? 'bg-blue-50 dark:bg-blue-500/10 text-blue-600 dark:text-blue-400'
+    : 'bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400';
 
   return (
-    <div className="flex-1 p-4 sm:p-5 rounded-xl bg-white/60 dark:bg-white/5 border border-white/50 dark:border-white/10">
-      <div className="flex items-start gap-3 mb-4">
-        <div className={`w-10 h-10 rounded-full bg-gradient-to-br ${avatarColor} flex items-center justify-center text-white font-bold text-sm flex-shrink-0 shadow-lg`}>
+    <div className="flex-1 p-4 rounded-lg bg-gray-50 dark:bg-white/5 border border-gray-100 dark:border-white/8">
+      <div className="flex items-start gap-3 mb-3">
+        <div className={`w-9 h-9 rounded-lg bg-gradient-to-br ${avatarColor} flex items-center justify-center text-white font-bold text-xs flex-shrink-0`}>
           {getInitials(request.name)}
         </div>
         <div>
           <p className="font-bold text-gray-900 dark:text-white text-sm">{request.name}</p>
-          <p className="text-xs text-gray-500 dark:text-gray-500 font-medium">{request.rollNumber}</p>
-          <span className={`inline-block mt-1 px-2 py-0.5 rounded-full text-xs font-semibold ${semColor}`}>
-            {request.semester} Semester
+          <p className="text-xs text-gray-400 dark:text-gray-500">{request.rollNumber}</p>
+          <span className={`inline-block mt-0.5 px-1.5 py-0.5 rounded text-[11px] font-semibold ${semBadge}`}>
+            {request.semester} Sem
           </span>
         </div>
       </div>
-      <div className="space-y-3">
+      <div className="space-y-2">
         <div>
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wide mb-1.5">Current</p>
-          <span className="px-3 py-1.5 rounded-lg bg-blue-100 dark:bg-blue-500/20 text-blue-700 dark:text-blue-300 text-sm font-bold border border-blue-200 dark:border-blue-500/30">
-            Section {request.currentSection}
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Has</p>
+          <span className="px-2.5 py-1 rounded-md bg-gray-200 dark:bg-white/10 text-gray-800 dark:text-gray-200 text-xs font-bold">
+            {request.currentSection}
           </span>
         </div>
         <div>
-          <p className="text-xs font-semibold text-gray-500 dark:text-gray-500 uppercase tracking-wide mb-1.5">Wanted</p>
-          <div className="flex flex-wrap gap-1.5">
+          <p className="text-[10px] font-semibold text-gray-400 uppercase tracking-wider mb-1">Wants</p>
+          <div className="flex flex-wrap gap-1">
             {request.wantedSections.map(s => (
-              <span
-                key={s}
-                className="px-2.5 py-1 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 text-xs font-bold border border-emerald-200 dark:border-emerald-500/30"
-              >
+              <span key={s} className="px-2.5 py-1 rounded-md bg-emerald-50 dark:bg-emerald-500/10 text-emerald-700 dark:text-emerald-300 text-xs font-bold border border-emerald-200 dark:border-emerald-500/20">
                 {s}
               </span>
             ))}
@@ -50,83 +47,44 @@ function StudentCard({ request }) {
 }
 
 function MatchCard({ match, index }) {
-  const isCompleteMatch = match.matchType === 'complete';
-  const emoji = isCompleteMatch ? '🎉' : '💬';
-  const statusText = isCompleteMatch ? 'Complete Match!' : 'Partial Match';
-  const descriptionText = isCompleteMatch 
-    ? 'These two students can directly swap sections'
-    : 'Talk to adjust and make a swap that works for both';
-  
-  const headerGradient = isCompleteMatch 
-    ? 'from-indigo-500 via-purple-500 to-pink-500'
-    : 'from-amber-500 via-orange-500 to-rose-500';
-  const badgeGradient = isCompleteMatch
-    ? 'from-indigo-500 to-purple-500'
-    : 'from-amber-500 to-orange-500';
-  const badgeText = isCompleteMatch ? 'COMPLETE MATCH ✓' : 'CAN ADJUST 🔄';
+  const isComplete = match.matchType === 'complete';
 
   return (
     <motion.div
       key={match.key}
-      initial={{ opacity: 0, y: 20, scale: 0.95 }}
-      animate={{ opacity: 1, y: 0, scale: 1 }}
-      transition={{ duration: 0.4, delay: index * 0.1 }}
-      className={`relative p-1 rounded-2xl bg-gradient-to-r ${headerGradient} shadow-xl ${isCompleteMatch ? 'shadow-indigo-500/20' : 'shadow-amber-500/20'}`}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.35, delay: index * 0.08 }}
+      className={`border rounded-xl p-5 ${isComplete ? 'border-emerald-200 dark:border-emerald-500/30 bg-emerald-50/40 dark:bg-emerald-500/5' : 'border-amber-200 dark:border-amber-500/20 bg-amber-50/30 dark:bg-amber-500/5'}`}
     >
-      <div className="bg-white dark:bg-[#161620] rounded-xl p-4 sm:p-6">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-5">
-          <div className="flex items-center gap-2">
-            <motion.span
-              animate={{ rotate: [0, 10, -10, 0] }}
-              transition={{ repeat: Infinity, duration: 2 }}
-              className="text-2xl"
-            >
-              {emoji}
-            </motion.span>
-            <div>
-              <p className="font-bold text-gray-900 dark:text-white text-base">{statusText}</p>
-              <p className="text-xs text-gray-500 dark:text-gray-500">{descriptionText}</p>
-            </div>
-          </div>
-          <div className={`px-3 py-1 rounded-full bg-gradient-to-r ${badgeGradient} text-white text-xs font-bold shadow-lg ${isCompleteMatch ? 'shadow-indigo-500/30' : 'shadow-amber-500/30'}`}>
-            {badgeText}
+      {/* Header */}
+      <div className="flex items-center justify-between mb-4">
+        <div className="flex items-center gap-2.5">
+          <span className="text-xl">{isComplete ? '🎉' : '💬'}</span>
+          <div>
+            <p className="font-bold text-gray-900 dark:text-white text-sm">{isComplete ? 'Perfect Match' : 'Potential Match'}</p>
+            <p className="text-xs text-gray-500 dark:text-gray-400">{isComplete ? 'These two can swap directly' : 'Talk it out and find a deal'}</p>
           </div>
         </div>
+        <span className={`px-2.5 py-1 rounded-md text-xs font-bold ${isComplete ? 'bg-emerald-100 dark:bg-emerald-500/20 text-emerald-700 dark:text-emerald-300' : 'bg-amber-100 dark:bg-amber-500/20 text-amber-700 dark:text-amber-300'}`}>
+          {isComplete ? 'COMPLETE' : 'PARTIAL'}
+        </span>
+      </div>
 
-        {/* Students */}
-        <div className="flex flex-col sm:flex-row items-stretch gap-3">
-          <StudentCard request={match.a} />
-
-          {/* Arrow */}
-          <div className="flex items-center justify-center py-2 sm:py-0">
-            <div className="flex flex-col sm:flex-row items-center gap-1">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-r from-indigo-500 to-purple-500 flex items-center justify-center shadow-lg">
-                <span className="text-white font-bold text-sm">↔</span>
-              </div>
-            </div>
+      {/* Students */}
+      <div className="flex flex-col sm:flex-row gap-3 items-stretch">
+        <StudentCard request={match.a} />
+        <div className="flex items-center justify-center">
+          <div className="w-8 h-8 rounded-lg bg-emerald-100 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-600 dark:text-emerald-400 font-bold text-sm">
+            ↔
           </div>
-
-          <StudentCard request={match.b} />
         </div>
+        <StudentCard request={match.b} />
+      </div>
 
-        {/* Contact hint */}
-        <div className={`mt-4 pt-4 border-t ${isCompleteMatch ? 'border-gray-100 dark:border-white/5' : 'border-amber-100 dark:border-amber-500/10'}`}>
-          {isCompleteMatch ? (
-            <p className="text-xs text-center text-gray-500 dark:text-gray-600">
-              💬 Contact each other to confirm the swap
-            </p>
-          ) : (
-            <div className="text-xs text-center">
-              <p className="text-amber-700 dark:text-amber-300 font-semibold mb-1">
-                ⚠️ Partial Match - Requires discussion
-              </p>
-              <p className="text-gray-500 dark:text-gray-600">
-                Connect and discuss to find a mutually beneficial swap arrangement
-              </p>
-            </div>
-          )}
-        </div>
+      {/* Footer */}
+      <div className={`mt-4 pt-3 border-t text-xs text-center ${isComplete ? 'border-emerald-100 dark:border-emerald-500/15 text-gray-500 dark:text-gray-400' : 'border-amber-100 dark:border-amber-500/10 text-amber-700 dark:text-amber-400'}`}>
+        {isComplete ? 'Contact each other to confirm the swap' : 'Partial match — discuss to make it work'}
       </div>
     </motion.div>
   );
@@ -134,96 +92,61 @@ function MatchCard({ match, index }) {
 
 export default function MatchesSection() {
   const { matches, requests, activeRequestId } = useSwap();
-
-  const activeRequest = useMemo(() => {
-    return requests.find((request) => request.id === activeRequestId);
-  }, [requests, activeRequestId]);
+  const activeRequest = useMemo(() => requests.find(r => r.id === activeRequestId), [requests, activeRequestId]);
 
   return (
-    <section id="matches" className="py-20 px-4 sm:px-6">
+    <section id="matches" className="py-20 px-4 sm:px-6 bg-transparent">
       <div className="max-w-3xl mx-auto">
-        {/* Section header */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
-          className="text-center mb-10"
-        >
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-emerald-100 dark:bg-emerald-500/20 text-emerald-600 dark:text-emerald-400 mb-4">
+
+        {/* Header */}
+        <motion.div initial={{ opacity: 0, y: 16 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 0.4 }} className="text-center mb-10">
+          <span className="inline-block px-3 py-1 rounded-full bg-green-50 dark:bg-green-500/10 text-green-600 dark:text-green-400 text-xs font-semibold uppercase tracking-widest mb-4">
             Step 2
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
-            Your Matches
-          </h2>
-          <p className="text-gray-500 dark:text-gray-400">
-            Automatically detected compatible swap pairs using your selected request.
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-2">Your Matches</h2>
+          <p className="text-gray-500 dark:text-gray-400 text-sm">
+            Automatically detected swap pairs based on your selected request.
           </p>
         </motion.div>
 
-        {/* Active request summary */}
+        {/* Active request card */}
         {activeRequest ? (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-6 rounded-3xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#161620] p-5 shadow-sm"
-          >
-            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 p-4 rounded-xl border border-gray-200 dark:border-white/8 bg-white dark:bg-[#1a1a1a]">
+            <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
               <div>
-                <p className="text-xs uppercase tracking-wide text-indigo-600 dark:text-indigo-300 font-semibold">Selected Request</p>
-                <h3 className="text-lg font-bold text-gray-900 dark:text-white">{activeRequest.name}</h3>
-                <p className="text-sm text-gray-500 dark:text-gray-400">Current section {activeRequest.currentSection} · Wants {activeRequest.wantedSections.join(', ')}</p>
+                <p className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase tracking-widest mb-0.5">Selected Request</p>
+                <p className="font-bold text-gray-900 dark:text-white">{activeRequest.name}</p>
+                <p className="text-sm text-gray-500 dark:text-gray-400">Section {activeRequest.currentSection} → Wants {activeRequest.wantedSections.join(', ')}</p>
               </div>
-              <div className="inline-flex items-center gap-2 rounded-full bg-indigo-500/10 text-indigo-700 dark:text-indigo-200 px-4 py-2 text-sm font-semibold">
-                {matches.length} compatible match{matches.length !== 1 ? 'es' : ''}
-              </div>
+              <span className="text-sm font-semibold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-500/10 px-3 py-1.5 rounded-lg border border-emerald-100 dark:border-emerald-500/20 whitespace-nowrap">
+                {matches.length} match{matches.length !== 1 ? 'es' : ''}
+              </span>
             </div>
           </motion.div>
         ) : (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
-            animate={{ opacity: 1, scale: 1 }}
-            className="mb-6 rounded-3xl border border-dashed border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5 text-center"
-          >
-            <p className="text-sm text-gray-500 dark:text-gray-400">
-              Select a request from the community board to see personalized matches here.
-            </p>
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="mb-6 p-4 rounded-xl border border-dashed border-gray-200 dark:border-white/10 text-center">
+            <p className="text-sm text-gray-400 dark:text-gray-500">Select a request from the board to see matches here.</p>
           </motion.div>
         )}
 
-        {/* Content */}
+        {/* Matches */}
         <AnimatePresence mode="wait">
           {matches.length === 0 ? (
-            <motion.div
-              key="no-matches"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="text-center py-16 px-8 rounded-2xl border border-dashed border-gray-200 dark:border-white/10 bg-gray-50/50 dark:bg-white/2"
+            <motion.div key="empty" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="text-center py-16 px-8 rounded-xl border border-dashed border-gray-200 dark:border-white/10"
             >
-              <div className="text-5xl mb-4">🔍</div>
-              <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">No matches yet</h3>
-              <p className="text-gray-500 dark:text-gray-500 text-sm max-w-sm mx-auto">
-                Post a request and we&apos;ll automatically find compatible swaps from the community board.
-              </p>
-              <button
-                onClick={() => document.querySelector('#post-request')?.scrollIntoView({ behavior: 'smooth' })}
-                className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 rounded-lg text-sm font-semibold text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all duration-200"
+              <div className="text-4xl mb-4">🔍</div>
+              <h3 className="text-base font-bold text-gray-700 dark:text-gray-300 mb-1">No matches yet</h3>
+              <p className="text-gray-400 dark:text-gray-500 text-sm mb-5">Post a request and we'll scan for compatible swaps.</p>
+              <button onClick={() => document.querySelector('#post-request')?.scrollIntoView({ behavior: 'smooth' })}
+                className="inline-flex items-center gap-2 px-5 py-2.5 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-semibold transition-colors duration-150"
               >
                 Post a Request <FiArrowRight size={14} />
               </button>
             </motion.div>
           ) : (
-            <motion.div
-              key="matches-list"
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="space-y-6"
-            >
-              {matches.map((match, i) => (
-                <MatchCard key={match.key} match={match} index={i} />
-              ))}
+            <motion.div key="list" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} className="space-y-4">
+              {matches.map((match, i) => <MatchCard key={match.key} match={match} index={i} />)}
             </motion.div>
           )}
         </AnimatePresence>

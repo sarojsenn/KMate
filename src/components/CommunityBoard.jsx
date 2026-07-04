@@ -1,6 +1,6 @@
 import { useState, useMemo, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { FiSearch, FiFilter, FiInbox } from 'react-icons/fi';
+import { FiSearch, FiFilter, FiX } from 'react-icons/fi';
 import { useSwap } from '../context/SwapContext';
 import { supabase } from '../lib/supabaseClient';
 import SwapCard from './SwapCard';
@@ -57,32 +57,18 @@ const INITIAL_GROUP_LINKS = {
 function EmptyState() {
   return (
     <motion.div
-      initial={{ opacity: 0, y: 20 }}
+      initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
-      className="col-span-full flex flex-col items-center justify-center py-24 px-6"
+      className="col-span-full flex flex-col items-center justify-center py-20 px-6"
     >
-      {/* SVG Illustration */}
-      <motion.div
-        animate={{ y: [0, -8, 0] }}
-        transition={{ repeat: Infinity, duration: 3, ease: 'easeInOut' }}
-        className="mb-8"
-      >
-        <svg width="140" height="140" viewBox="0 0 140 140" fill="none" xmlns="http://www.w3.org/2000/svg">
-          <circle cx="70" cy="70" r="70" className="fill-indigo-50 dark:fill-indigo-500/10" />
-          <rect x="30" y="45" width="80" height="60" rx="10" className="fill-white dark:fill-white/5" stroke="#6366f1" strokeWidth="2" strokeDasharray="6 4" />
-          <circle cx="70" cy="65" r="14" className="fill-indigo-100 dark:fill-indigo-500/20" />
-          <path d="M63 65 L70 58 L77 65 M70 58 L70 74" stroke="#6366f1" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round" />
-          <rect x="42" y="84" width="56" height="8" rx="4" className="fill-indigo-100 dark:fill-indigo-500/20" />
-          <rect x="52" y="97" width="36" height="6" rx="3" className="fill-indigo-50 dark:fill-indigo-500/10" />
-        </svg>
-      </motion.div>
-      <h3 className="text-xl font-bold text-gray-900 dark:text-white mb-2">No swap requests yet</h3>
-      <p className="text-gray-500 dark:text-gray-500 text-center max-w-xs text-sm leading-relaxed">
-        Be the first student to post one. It only takes 30 seconds!
+      <div className="text-6xl mb-4">📭</div>
+      <h3 className="text-lg font-bold text-gray-900 dark:text-white mb-1">No requests yet</h3>
+      <p className="text-gray-500 dark:text-gray-400 text-center max-w-xs text-sm font-medium">
+        Be the first to post a request. It only takes a minute!
       </p>
       <button
         onClick={() => document.querySelector('#post-request')?.scrollIntoView({ behavior: 'smooth' })}
-        className="mt-6 px-6 py-2.5 rounded-xl text-sm font-semibold text-white bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-500 hover:to-purple-500 shadow-lg shadow-indigo-500/25 hover:scale-105 transition-all duration-200"
+        className="mt-5 px-5 py-2.5 rounded-lg text-sm font-semibold text-white bg-emerald-600 hover:bg-emerald-700 shadow-sm"
       >
         Post a Request
       </button>
@@ -95,16 +81,16 @@ function NoResults({ onClear }) {
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="col-span-full flex flex-col items-center justify-center py-20 px-6"
+      className="col-span-full flex flex-col items-center justify-center py-16 px-6"
     >
-      <FiInbox size={40} className="text-gray-300 dark:text-gray-700 mb-4" />
-      <h3 className="text-lg font-semibold text-gray-700 dark:text-gray-300 mb-2">No results found</h3>
-      <p className="text-gray-500 dark:text-gray-500 text-sm text-center mb-5">
-        Try adjusting your search or filters.
+      <div className="text-5xl mb-4">🔎</div>
+      <h3 className="text-lg font-bold text-gray-700 dark:text-gray-300 mb-1">No results found</h3>
+      <p className="text-gray-400 dark:text-gray-500 text-sm text-center mb-5 font-medium">
+        Try adjusting your filters or search term.
       </p>
       <button
         onClick={onClear}
-        className="px-5 py-2.5 rounded-lg text-sm font-semibold text-indigo-600 dark:text-indigo-400 border border-indigo-200 dark:border-indigo-500/30 hover:bg-indigo-50 dark:hover:bg-indigo-500/10 transition-all duration-200"
+        className="px-4 py-2 rounded-lg text-sm font-semibold text-emerald-600 dark:text-emerald-400 border border-emerald-200 dark:border-emerald-500/30 hover:bg-emerald-50 dark:hover:bg-emerald-500/10 transition-colors duration-150"
       >
         Clear Filters
       </button>
@@ -119,6 +105,24 @@ export default function CommunityBoard() {
   const [sort, setSort] = useState('Newest');
   const [groupLinks, setGroupLinks] = useState(INITIAL_GROUP_LINKS);
   const [selectedSection, setSelectedSection] = useState(SECTION_KEYS[0]);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
+  useEffect(() => {
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape') {
+        setIsModalOpen(false);
+      }
+    };
+    if (isModalOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'hidden';
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+      document.body.style.overflow = 'unset';
+    };
+  }, [isModalOpen]);
+
   const [newGroupUrl, setNewGroupUrl] = useState('');
   const [groupStatus, setGroupStatus] = useState('');
   const [loading, setLoading] = useState(true);
@@ -133,7 +137,6 @@ export default function CommunityBoard() {
 
         if (error) {
           console.error('Error fetching group links:', error);
-          // Fall back to localStorage
           try {
             const saved = localStorage.getItem('swapfinder_whatsapp_groups');
             if (saved) setGroupLinks(JSON.parse(saved));
@@ -141,14 +144,12 @@ export default function CommunityBoard() {
             console.error('Error loading from localStorage:', e);
           }
         } else if (data && data.length > 0) {
-          // Convert array to object keyed by section
           const linksObj = {};
           data.forEach(row => {
             if (row.section && row.link) {
               linksObj[row.section] = row.link;
             }
           });
-          // Merge with initial links
           const merged = { ...INITIAL_GROUP_LINKS, ...linksObj };
           setGroupLinks(merged);
         }
@@ -161,7 +162,6 @@ export default function CommunityBoard() {
 
     fetchGroupLinks();
 
-    // Subscribe to real-time updates
     const subscription = supabase
       .channel('group_links')
       .on('postgres_changes', { event: '*', schema: 'public', table: 'group_links' }, (payload) => {
@@ -187,34 +187,27 @@ export default function CommunityBoard() {
     }
 
     try {
-      // Use upsert to insert or update
-      const { data, error } = await supabase
+      const { error } = await supabase
         .from('group_links')
         .upsert(
           [{ section: selectedSection, link: trimmed }],
           { onConflict: 'section' }
         );
 
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
+      if (error) throw error;
 
-      // Update local state
       setGroupLinks(prev => ({
         ...prev,
         [selectedSection]: trimmed
       }));
 
-      setGroupStatus('Link saved and shared with all users!');
+      setGroupStatus('Link saved and shared!');
       setNewGroupUrl('');
     } catch (err) {
       console.error('Error saving group link:', err);
       setGroupStatus('Error saving link. Please try again.');
     }
   };
-
-  const availableGroupCount = SECTION_KEYS.filter(section => groupLinks[section]).length;
 
   const filtered = useMemo(() => {
     let list = [...requests];
@@ -249,23 +242,24 @@ export default function CommunityBoard() {
   };
 
   return (
-    <section id="community-board" className="py-20 px-4 sm:px-6">
+    <section id="community-board" className="py-20 px-4 sm:px-6 bg-transparent">
       <div className="max-w-6xl mx-auto">
+        
         {/* Section header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.5 }}
+          transition={{ duration: 0.4 }}
           className="text-center mb-10"
         >
-          <span className="inline-flex items-center gap-2 px-3 py-1 rounded-full text-xs font-semibold tracking-wider uppercase bg-rose-100 dark:bg-rose-500/20 text-rose-600 dark:text-rose-400 mb-4">
+          <span className="inline-block px-3 py-1 rounded-full bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-semibold uppercase tracking-widest mb-4">
             Step 3
           </span>
-          <h2 className="text-3xl sm:text-4xl font-bold text-gray-900 dark:text-white mb-3">
+          <h2 className="text-3xl sm:text-4xl font-extrabold text-gray-900 dark:text-white mb-2">
             Community Board
           </h2>
-          <p className="text-gray-500 dark:text-gray-400">
+          <p className="text-gray-500 dark:text-gray-400 text-sm font-medium">
             Browse all active swap requests from the community.
           </p>
         </motion.div>
@@ -276,13 +270,13 @@ export default function CommunityBoard() {
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 0.4, delay: 0.1 }}
-          className="bg-white dark:bg-[#161620] border border-gray-100 dark:border-white/5 rounded-2xl p-4 mb-6 shadow-sm"
+          className="bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-4 mb-6 shadow-sm"
         >
           <div className="grid gap-4 lg:grid-cols-[1.5fr_1fr]">
             <div className="relative">
               <FiSearch
-                size={16}
-                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-600"
+                size={15}
+                className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-400 dark:text-gray-500"
               />
               <input
                 id="search-board"
@@ -290,7 +284,7 @@ export default function CommunityBoard() {
                 placeholder="Search by name, roll, or section..."
                 value={search}
                 onChange={e => setSearch(e.target.value)}
-                className="w-full pl-10 pr-4 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 outline-none focus:ring-2 focus:ring-indigo-500/40 focus:border-indigo-500 dark:focus:border-indigo-500 transition-all duration-200"
+                className="w-full pl-10 pr-4 py-2.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm font-medium text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-600 outline-none focus:ring-2 focus:ring-emerald-500/30 focus:border-emerald-500 transition-colors duration-150"
               />
             </div>
 
@@ -299,29 +293,29 @@ export default function CommunityBoard() {
                 id="sort-select"
                 value={sort}
                 onChange={e => setSort(e.target.value)}
-                className="w-full pl-4 pr-8 py-2.5 rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-indigo-500/40 appearance-none cursor-pointer transition-all duration-200"
+                className="w-full pl-4 pr-8 py-2.5 rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 text-sm font-medium text-gray-900 dark:text-white outline-none focus:ring-2 focus:ring-emerald-500/30 appearance-none cursor-pointer transition-colors duration-150"
               >
                 {SORTS.map(s => (
-                  <option key={s} value={s} className="bg-white dark:bg-[#161620] text-gray-900 dark:text-white">
+                  <option key={s} value={s} className="bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white">
                     {s}
                   </option>
                 ))}
               </select>
-              <FiFilter size={14} className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none" />
+              <span className="absolute right-3.5 top-1/2 -translate-y-1/2 text-gray-400 pointer-events-none text-xs">▼</span>
             </div>
           </div>
 
           {/* Filter pills */}
-          <div className="flex gap-2 mt-3 flex-wrap">
+          <div className="flex gap-1.5 mt-3 flex-wrap">
             {FILTERS.map(f => (
               <button
                 key={f}
                 id={`filter-${f.replace(' ', '-').toLowerCase()}`}
                 onClick={() => setActiveFilter(f)}
-                className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold transition-all duration-200 ${
+                className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-colors duration-150 ${
                   activeFilter === f
-                    ? 'bg-indigo-600 text-white shadow-md shadow-indigo-500/30'
-                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-white/10 hover:border-gray-300 dark:hover:border-white/20'
+                    ? 'bg-emerald-600 text-white'
+                    : 'text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white border border-gray-200 dark:border-white/10 hover:border-emerald-300 dark:hover:border-emerald-500/40'
                 }`}
               >
                 {f}
@@ -330,37 +324,35 @@ export default function CommunityBoard() {
             {(search || activeFilter !== 'All') && (
               <button
                 onClick={clearFilters}
-                className="px-3.5 py-1.5 rounded-lg text-xs font-semibold text-rose-600 dark:text-rose-400 border border-rose-200 dark:border-rose-500/30 hover:bg-rose-50 dark:hover:bg-rose-500/10 transition-all duration-200"
+                className="px-3 py-1.5 rounded-lg text-xs font-semibold text-red-600 dark:text-red-400 border border-red-200 dark:border-red-500/30 hover:bg-red-50 dark:hover:bg-red-500/10 transition-colors duration-150"
               >
-                Clear All
+                Clear Filters
               </button>
             )}
-            {/* Count */}
-            <span className="ml-auto text-xs text-gray-400 dark:text-gray-600 self-center">
-              {filtered.length} result{filtered.length !== 1 ? 's' : ''}
+            <span className="ml-auto text-xs font-medium text-gray-400 dark:text-gray-500 self-center">
+              {filtered.length} request{filtered.length !== 1 ? 's' : ''}
             </span>
           </div>
         </motion.div>
 
-
+        {/* WhatsApp widget */}
         <motion.div
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.4, delay: 0.15 }}
           className="mb-6"
         >
-          <div className="rounded-3xl bg-white dark:bg-[#161620] border border-gray-100 dark:border-white/5 p-6 shadow-sm">
-            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-6">
-              <div className="space-y-2">
-                <p className="text-sm uppercase tracking-wide text-indigo-600 dark:text-indigo-300 font-semibold">Unofficial WhatsApp groups</p>
-                <p className="text-sm text-gray-500 dark:text-gray-400">
-                  Select your section to view the unofficial group link or add one if it is missing.
+          <div className="rounded-xl bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 p-5 shadow-sm">
+            <div className="flex flex-col gap-3 md:flex-row md:items-end md:justify-between mb-5">
+              <div className="space-y-1">
+                <p className="text-xs uppercase tracking-widest text-emerald-600 dark:text-emerald-400 font-bold">
+                  💬 WhatsApp Groups
+                </p>
+                <p className="text-sm text-gray-500 dark:text-gray-400 font-medium">
+                  Select your section to access the unofficial WhatsApp group link.
                 </p>
               </div>
-              <div className="w-full md:w-auto">
-                <label htmlFor="section-select" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Select section
-                </label>
+              <div className="w-full md:w-48">
                 <select
                   id="section-select"
                   value={selectedSection}
@@ -369,10 +361,10 @@ export default function CommunityBoard() {
                     setGroupStatus('');
                     setNewGroupUrl('');
                   }}
-                  className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-4 py-3 text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                  className="w-full rounded-lg border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 px-3 py-2 text-sm font-medium text-gray-900 dark:text-white outline-none focus:border-emerald-500 focus:ring-2 focus:ring-emerald-500/20"
                 >
                   {SECTION_KEYS.map(section => (
-                    <option key={section} value={section} className="bg-white dark:bg-[#161620] text-gray-900 dark:text-white">
+                    <option key={section} value={section} className="bg-white dark:bg-[#1a1a1a] text-gray-900 dark:text-white">
                       {section}
                     </option>
                   ))}
@@ -380,67 +372,53 @@ export default function CommunityBoard() {
               </div>
             </div>
 
-            <div className="space-y-4">
-              <div className="rounded-3xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5">
-                <div className="flex items-center justify-between gap-4 mb-3">
-                  <div>
-                    <p className="text-sm font-semibold text-gray-900 dark:text-white">{selectedSection}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Unofficial WhatsApp group link</p>
-                  </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div className="p-4 rounded-lg bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/5 flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-bold text-gray-900 dark:text-white">{selectedSection}</p>
                   {groupLinks[selectedSection] ? (
-                    <span className="rounded-full bg-emerald-100 text-emerald-700 px-2 py-0.5 text-xs font-semibold">
-                      Live
-                    </span>
+                    <a
+                      href={groupLinks[selectedSection]}
+                      target="_blank"
+                      rel="noreferrer"
+                      className="text-xs font-semibold text-emerald-600 dark:text-emerald-400 hover:underline"
+                    >
+                      Join WhatsApp Group →
+                    </a>
                   ) : (
-                    <span className="rounded-full bg-rose-100 text-rose-700 px-2 py-0.5 text-xs font-semibold">
-                      Missing
-                    </span>
+                    <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">No link posted yet</p>
                   )}
                 </div>
-
-                {groupLinks[selectedSection] ? (
-                  <a
-                    href={groupLinks[selectedSection]}
-                    target="_blank"
-                    rel="noreferrer"
-                    className="text-sm text-indigo-600 dark:text-indigo-300 hover:text-indigo-500 underline"
-                  >
-                    Open WhatsApp group
-                  </a>
-                ) : (
-                  <p className="text-sm text-gray-500 dark:text-gray-400">No unofficial group link available for this section yet.</p>
-                )}
+                <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${groupLinks[selectedSection] ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
+                  {groupLinks[selectedSection] ? 'Active' : 'Missing'}
+                </span>
               </div>
 
-              <div className="rounded-3xl border border-gray-200 dark:border-white/10 bg-gray-50 dark:bg-white/5 p-5">
-                <label htmlFor="group-link-input" className="block text-sm font-semibold text-gray-700 dark:text-gray-300 mb-2">
-                  Add or update link for {selectedSection}
-                </label>
-                <div className="flex flex-col gap-3 sm:flex-row sm:items-center">
+              <div className="p-4 rounded-lg bg-gray-50 dark:bg-white/3 border border-gray-100 dark:border-white/5">
+                <div className="flex gap-2">
                   <input
                     id="group-link-input"
                     type="url"
                     value={newGroupUrl}
                     onChange={e => setNewGroupUrl(e.target.value)}
-                    placeholder="Paste WhatsApp group URL"
-                    className="w-full rounded-xl border border-gray-200 dark:border-white/10 bg-white dark:bg-[#12121b] px-4 py-3 text-sm text-gray-900 dark:text-white outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+                    placeholder="Add/update group URL..."
+                    className="flex-1 rounded-lg border border-gray-200 dark:border-white/10 bg-white dark:bg-[#1a1a1a] px-3 py-1.5 text-xs font-medium text-gray-900 dark:text-white outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500"
                   />
                   <button
                     type="button"
                     onClick={saveGroupLink}
-                    className="w-full sm:w-auto rounded-xl bg-indigo-600 text-white px-5 py-3 text-sm font-semibold hover:bg-indigo-500 transition"
+                    className="rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white px-3 py-1.5 text-xs font-semibold transition-colors duration-150"
                   >
-                    Save link
+                    Save
                   </button>
                 </div>
                 {groupStatus && (
-                  <p className="mt-3 text-sm text-rose-500">{groupStatus}</p>
+                  <p className="mt-2 text-[11px] font-medium text-emerald-600 dark:text-emerald-400">{groupStatus}</p>
                 )}
               </div>
             </div>
           </div>
         </motion.div>
-
 
         {/* Cards grid */}
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
@@ -450,13 +428,74 @@ export default function CommunityBoard() {
             ) : filtered.length === 0 ? (
               <NoResults onClear={clearFilters} />
             ) : (
-              filtered.map(request => (
+              filtered.slice(0, 9).map(request => (
                 <SwapCard key={request.id} request={request} />
               ))
             )}
           </AnimatePresence>
         </div>
+
+        {/* Show More */}
+        {filtered.length > 9 && (
+          <div className="flex justify-center mt-10">
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="px-6 py-3 rounded-lg bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-sm transition-colors duration-150"
+            >
+              Show More ({filtered.length - 9} remaining)
+            </button>
+          </div>
+        )}
       </div>
+
+      {/* Modal */}
+      <AnimatePresence>
+        {isModalOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/60 backdrop-blur-sm"
+            onClick={() => setIsModalOpen(false)}
+          >
+            <motion.div
+              initial={{ scale: 0.97, opacity: 0, y: 16 }}
+              animate={{ scale: 1, opacity: 1, y: 0 }}
+              exit={{ scale: 0.97, opacity: 0, y: 16 }}
+              transition={{ duration: 0.25 }}
+              className="relative w-full max-w-6xl max-h-[85vh] bg-white dark:bg-[#1a1a1a] border border-gray-200 dark:border-white/10 rounded-xl p-6 shadow-xl flex flex-col overflow-hidden"
+              onClick={e => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between pb-3.5 mb-5 border-b border-gray-100 dark:border-white/5">
+                <div>
+                  <h3 className="text-lg font-bold text-gray-900 dark:text-white">
+                    🎓 All Swap Requests
+                  </h3>
+                  <p className="text-xs text-gray-400 dark:text-gray-500 font-medium">
+                    Showing all {filtered.length} active request{filtered.length !== 1 ? 's' : ''}
+                  </p>
+                </div>
+                <button
+                  onClick={() => setIsModalOpen(false)}
+                  className="p-2 rounded-lg text-gray-400 hover:text-gray-800 dark:hover:text-white hover:bg-gray-100 dark:hover:bg-white/8 transition-colors duration-150"
+                >
+                  <FiX size={18} />
+                </button>
+              </div>
+
+              {/* Modal Body */}
+              <div className="flex-1 overflow-y-auto pr-1">
+                <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 pb-4">
+                  {filtered.map(request => (
+                    <SwapCard key={request.id} request={request} />
+                  ))}
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 }

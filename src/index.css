@@ -1,19 +1,10 @@
+@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap');
 @import "tailwindcss";
 
 @custom-variant dark (&:where(.dark, .dark *));
 
 @theme {
-  --font-family-sans: 'Inter', ui-sans-serif, system-ui, sans-serif;
-  --color-brand-50: #eef2ff;
-  --color-brand-100: #e0e7ff;
-  --color-brand-200: #c7d2fe;
-  --color-brand-300: #a5b4fc;
-  --color-brand-400: #818cf8;
-  --color-brand-500: #6366f1;
-  --color-brand-600: #4f46e5;
-  --color-brand-700: #4338ca;
-  --color-brand-800: #3730a3;
-  --color-brand-900: #312e81;
+  --font-family-sans: 'Outfit', ui-sans-serif, system-ui, sans-serif;
 }
 
 :root {
@@ -44,35 +35,38 @@ body {
   pointer-events: none;
 }
 
-/* Custom scrollbar */
 ::-webkit-scrollbar {
-  width: 6px;
+  width: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: #6366f1;
+  background: #a3a3a3;
   border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #4f46e5;
+  background: #737373;
 }
 
-/* Tag input focus ring fix */
 input:focus-visible,
 textarea:focus-visible,
 select:focus-visible {
   outline: none;
 }
 
-/* Style native select options for proper light/dark mode display */
 select option {
   background-color: #ffffff;
   color: #111827;
 }
 
 .dark select option {
-  background-color: #161620;
+  background-color: #1c1c1c;
   color: #ffffff;
 }
+
+/* Smooth transitions for theme switching and hover states */
+body, nav, main, section, footer, div, button, input, select, textarea, span, p, h1, h2, h3, a {
+  transition: background-color 0.25s ease-in-out, border-color 0.25s ease-in-out, color 0.25s ease-in-out, box-shadow 0.25s ease-in-out;
+}
+

@@ -10,30 +10,27 @@ import ParticleBackground from './components/ParticleBackground';
 export default function App() {
   return (
     <SwapProvider>
-      <div className="relative min-h-screen overflow-hidden bg-white dark:bg-[#0f0f13] text-gray-900 dark:text-white transition-colors duration-300">
+      <div className="relative min-h-screen bg-white dark:bg-[#111111] text-gray-900 dark:text-white transition-colors duration-300">
         <ParticleBackground />
         <div className="relative z-10">
           <Navbar />
           <main>
             <Hero />
 
-            {/* Divider */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
-              <div className="h-px bg-gradient-to-r from-transparent via-indigo-200 dark:via-indigo-500/20 to-transparent" />
+              <div className="h-px bg-gray-100 dark:bg-white/5" />
             </div>
 
             <PostRequestForm />
 
-            {/* Divider */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
-              <div className="h-px bg-gradient-to-r from-transparent via-emerald-200 dark:via-emerald-500/20 to-transparent" />
+              <div className="h-px bg-gray-100 dark:bg-white/5" />
             </div>
 
             <MatchesSection />
 
-            {/* Divider */}
             <div className="max-w-7xl mx-auto px-4 sm:px-6">
-              <div className="h-px bg-gradient-to-r from-transparent via-rose-200 dark:via-rose-500/20 to-transparent" />
+              <div className="h-px bg-gray-100 dark:bg-white/5" />
             </div>
 
             <CommunityBoard />

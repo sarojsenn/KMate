@@ -132,7 +132,7 @@ export default function Gallery3D() {
             transform: 'translateX(-50%)',
             width: '80%',
             height: 40,
-            background: 'radial-gradient(ellipse, rgba(99,102,241,0.25) 0%, transparent 70%)',
+            background: 'radial-gradient(ellipse, rgba(16,185,129,0.2) 0%, transparent 70%)',
             filter: 'blur(6px)',
             pointerEvents: 'none',
           }}
@@ -157,15 +157,15 @@ export default function Gallery3D() {
                 transform: `translate(-50%, -50%) translate3d(${x}px, 0, ${zTrans}px) scale(${scale})`,
                 transition: dragging ? 'none' : 'transform 0.05s linear',
                 opacity,
-                filter: `brightness(${brightness}) drop-shadow(0 ${isActive ? 20 : 8}px ${isActive ? 40 : 16}px rgba(99,102,241,${isActive ? 0.5 : 0.15}))`,
+                filter: `brightness(${brightness}) drop-shadow(0 ${isActive ? 20 : 8}px ${isActive ? 40 : 16}px rgba(16,185,129,${isActive ? 0.4 : 0.1}))`,
                 zIndex: Math.round((zTrans + RADIUS) * 10),
                 borderRadius: 16,
                 overflow: 'hidden',
                 border: isActive
-                  ? '2px solid rgba(139,92,246,0.9)'
+                  ? '2px solid rgba(16,185,129,0.9)'
                   : '2px solid rgba(255,255,255,0.1)',
                 boxShadow: isActive
-                  ? '0 0 32px 4px rgba(139,92,246,0.35), inset 0 1px 0 rgba(255,255,255,0.15)'
+                  ? '0 0 32px 4px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.15)'
                   : 'none',
               }}
             >
@@ -232,8 +232,8 @@ export default function Gallery3D() {
               borderRadius: 4,
               border: 'none',
               background: i === activeIdx
-                ? 'linear-gradient(90deg, #6366f1, #a855f7)'
-                : 'rgba(99,102,241,0.25)',
+                ? '#10b981'
+                : 'rgba(16,185,129,0.2)',
               cursor: 'pointer',
               transition: 'all 0.3s ease',
               padding: 0,

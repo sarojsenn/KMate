@@ -1,8 +1,8 @@
 import { useEffect, useRef } from 'react';
 
 const PARTICLE_COUNT = 80;
-const PARTICLE_COLOR = 'rgba(99, 102, 241, 0.6)';
-const LINE_COLOR = 'rgba(99, 102, 241, 0.18)';
+const PARTICLE_COLOR = 'rgba(16, 185, 129, 0.45)';
+const LINE_COLOR = 'rgba(16, 185, 129, 0.15)';
 
 function createParticles(width, height) {
   return Array.from({ length: PARTICLE_COUNT }, () => ({
