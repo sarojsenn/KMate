@@ -165,7 +165,6 @@ export default function PostRequestForm() {
                   <input
                     id="name"
                     type="text"
-                    placeholder="e.g. Saroj Sen"
                     value={form.name}
                     onChange={e => {
                       setForm(p => ({ ...p, name: e.target.value }));
@@ -182,7 +181,6 @@ export default function PostRequestForm() {
                   <input
                     id="roll-number"
                     type="text"
-                    placeholder="e.g. 22051234"
                     value={form.rollNumber}
                     onChange={e => {
                       setForm(p => ({ ...p, rollNumber: e.target.value }));
