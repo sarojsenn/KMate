@@ -176,11 +176,11 @@ npm run dev
 
 ### Home Page
 
-> Add your screenshot here
+<h2>Home Page</h2>
 
-```md
-![Home](screenshots/home.png)
-```
+<p align="center">
+  <img src="screenshots/home.png" alt="Home Page" width="900">
+</p>
 
 ## Future Improvements
 
